@@ -3,126 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fully Adjustable Profile Frame Studio</title>
+    <title>Profile Picture Frame Studio</title>
     <style>
-        body { 
-            font-family: sans-serif; 
-            text-align: center; 
-            padding: 20px; 
-            background: #f0f2f5; 
-        }
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .upload-section {
-            margin: 15px 0;
-            padding: 15px;
-            background: #fdfdfd;
-            border: 1px dashed #ccc;
-            border-radius: 6px;
-        }
-        .control-panel {
-            margin: 20px 0;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            display: none;
-            text-align: left;
-        }
-        .control-section-title {
-            font-weight: bold;
-            color: #1877f2;
-            margin-top: 10px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 5px;
-        }
-        .control-group {
-            margin: 12px 0;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .control-group label {
-            font-weight: bold;
-            width: 35%;
-        }
-        .control-group input {
-            width: 60%;
-        }
-        #canvas-container { 
-            margin: 20px auto; 
-            max-width: 500px; 
-            display: none; 
-        }
-        canvas { 
-            width: 100%; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-        }
-        .btn { 
-            background: #1877f2; 
-            color: white; 
-            padding: 12px 24px; 
-            border: none; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            margin: 10px auto; 
-            display: block;
-            font-weight: bold;
-        }
-        .btn:hover { 
-            background: #166fe5; 
-        }
+        body { font-family: sans-serif; text-align: center; padding: 20px; background: #f0f2f5; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .upload-box { margin: 15px 0; padding: 15px; background: #fafafa; border: 2px dashed #ccd0d5; border-radius: 8px; text-align: left; }
+        .upload-box label { display: block; font-weight: bold; margin-bottom: 8px; color: #1c1e21; }
+        .control-panel { margin: 20px 0; background: #f0f2f5; padding: 15px; border-radius: 8px; text-align: left; display: none; }
+        .slider-group { margin: 12px 0; display: flex; align-items: center; justify-content: space-between; }
+        .slider-group label { font-weight: bold; width: 35%; font-size: 14px; }
+        .slider-group input { width: 60%; }
+        #canvas-container { margin: 20px auto; max-width: 450px; display: none; }
+        canvas { width: 100%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); background: #fff; }
+        .btn { background: #1877f2; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; width: 100%; }
+        .btn:hover { background: #166fe5; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Fully Adjustable Profile Frame Studio</h1>
-        <p>Use the control sliders to perfectly position both the circle mask window and your picture anywhere on the layout.</p>
+        <h2>Profile Picture Frame Studio</h2>
+        <p>Manually upload your frame template first, then add your profile picture to position it perfectly.</p>
 
-        <div class="upload-section">
-            <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Your Profile Photo</label>
-            <input type="file" id="user-upload" accept="image/*">
+        <!-- STEP 1: UPLOAD TEMPLATE -->
+        <div class="upload-box">
+            <label for="frame-input">Step 1: Upload Your Frame Template Graphic</label>
+            <input type="file" id="frame-input" accept="image/*">
         </div>
 
+        <!-- STEP 2: UPLOAD USER PHOTO -->
+        <div class="upload-box">
+            <label for="user-input">Step 2: Upload Your Face Profile Photo</label>
+            <input type="file" id="user-input" accept="image/*">
+        </div>
+
+        <!-- STEP 3: CONTROLS PANEL -->
         <div class="control-panel" id="controls">
-            
-            <div class="control-section-title">1. Move & Resize the Circle Hole Window</div>
-            <div class="control-group">
-                <label for="maskSize">Circle Window Size:</label>
-                <input type="range" id="maskSize" min="100" max="600" step="1" value="350">
-            </div>
-            <div class="control-group">
-                <label for="maskX">Move Hole Left/Right:</label>
-                <input type="range" id="maskX" min="0" max="1500" step="1" value="686">
-            </div>
-            <div class="control-group">
-                <label for="maskY">Move Hole Up/Down:</label>
-                <input type="range" id="maskY" min="0" max="1500" step="1" value="750">
-            </div>
-
-            <div class="control-section-title">2. Move & Zoom Your Face Photo Inside the Hole</div>
-            <div class="control-group">
+            <h4 style="margin: 0 0 10px 0; color: #1877f2;">Step 3: Move Your Photo Into the Hole</h4>
+            <div class="slider-group">
                 <label for="zoom">Photo Zoom Size:</label>
-                <input type="range" id="zoom" min="0.2" max="4" step="0.01" value="1.0">
+                <input type="range" id="zoom" min="0.1" max="3" step="0.01" value="1">
             </div>
-            <div class="control-group">
-                <label for="offsetX">Move Photo Left/Right:</label>
-                <input type="range" id="offsetX" min="-800" max="800" step="1" value="0">
+            <div class="slider-group">
+                <label for="moveX">Move Left / Right:</label>
+                <input type="range" id="moveX" min="-600" max="600" step="1" value="0">
             </div>
-            <div class="control-group">
-                <label for="offsetY">Move Photo Up/Down:</label>
-                <input type="range" id="offsetY" min="-800" max="800" step="1" value="0">
+            <div class="slider-group">
+                <label for="moveY">Move Up / Down:</label>
+                <input type="range" id="moveY" min="-600" max="600" step="1" value="0">
             </div>
         </div>
-        
+
+        <!-- STEP 4: CANVAS OUTPUT -->
         <div id="canvas-container">
             <canvas id="canvas"></canvas>
             <button class="btn" id="download-btn">Download Framed Photo</button>
@@ -130,122 +62,121 @@
     </div>
 
     <script>
-        const userUpload = document.getElementById('user-upload');
+        const frameInput = document.getElementById('frame-input');
+        const userInput = document.getElementById('user-input');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const controls = document.getElementById('controls');
         const container = document.getElementById('canvas-container');
-        const controlsPanel = document.getElementById('controls');
         const downloadBtn = document.getElementById('download-btn');
 
-        // Mask Sliders
-        const maskSizeSlider = document.getElementById('maskSize');
-        const maskXSlider = document.getElementById('maskX');
-        const maskYSlider = document.getElementById('maskY');
-
-        // Photo Sliders
         const zoomSlider = document.getElementById('zoom');
-        const offsetXSlider = document.getElementById('offsetX');
-        const offsetYSlider = document.getElementById('offsetY');
+        const moveXSlider = document.getElementById('moveX');
+        const moveYSlider = document.getElementById('moveY');
 
-        const FRAME_SRC = 'frame.png'; 
+        let frameImg = new Image();
+        let userImg = new Image();
+        let frameReady = false;
+        let userReady = false;
 
-        let userImage = new Image();
-        let frameImage = new Image();
-
-        let userLoaded = false;
-        let frameLoaded = false;
-
-        frameImage.crossOrigin = "anonymous";
-        frameImage.src = FRAME_SRC;
-        frameImage.onload = () => {
-            frameLoaded = true;
-            if (userLoaded) initCanvasSettings();
-        };
-
-        userUpload.addEventListener('change', (e) => {
-            const file = e.target.files;
+        // Process Frame Upload
+        frameInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (event) => {
-                userImage.onload = () => {
-                    userLoaded = true;
-                    initCanvasSettings();
+                frameImg.onload = () => {
+                    frameReady = true;
+                    updateAppDimensions();
                 };
-                userImage.src = event.target.result;
+                frameImg.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
 
-        function initCanvasSettings() {
-            if (!userLoaded || !frameLoaded) return;
-            
-            canvas.width = frameImage.width;
-            canvas.height = frameImage.height;
-
-            // Update limits dynamically based on frame size
-            maskXSlider.max = canvas.width;
-            maskYSlider.max = canvas.height;
-            maskXSlider.value = canvas.width / 2;
-            maskYSlider.value = canvas.height * 0.48; // default positioning above text
-
-            offsetXSlider.min = -canvas.width;
-            offsetXSlider.max = canvas.width;
-            offsetYSlider.min = -canvas.height;
-            offsetYSlider.max = canvas.height;
-
-            controlsPanel.style.display = 'block';
-            container.style.display = 'block';
-            renderCanvas();
-        }
-
-        // Add listeners to every slider to instantly update the screen
-        [maskSizeSlider, maskXSlider, maskYSlider, zoomSlider, offsetXSlider, offsetYSlider].forEach(slider => {
-            slider.addEventListener('input', renderCanvas);
+        // Process Profile Picture Upload
+        userInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                userImg.onload = () => {
+                    userReady = true;
+                    updateAppDimensions();
+                };
+                userImg.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         });
 
-        function renderCanvas() {
-            if (!userLoaded || !frameLoaded) return;
+        function updateAppDimensions() {
+            if (!frameReady || !userReady) return;
+
+            // Set canvas resolution to match your exact uploaded template
+            canvas.width = frameImg.width;
+            canvas.height = frameImg.height;
+
+            // Update limits dynamically based on frame template dimensions
+            moveXSlider.min = -canvas.width;
+            moveXSlider.max = canvas.width;
+            moveYSlider.min = -canvas.height;
+            moveYSlider.max = canvas.height;
+
+            controls.style.display = 'block';
+            container.style.display = 'block';
+            draw();
+        }
+
+        // Trigger updates when using sliders
+        [zoomSlider, moveXSlider, moveYSlider].forEach(input => {
+            input.addEventListener('input', draw);
+        });
+
+        function draw() {
+            if (!frameReady || !userReady) return;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Get values from the dynamic slider panel inputs
-            const circleX = parseInt(maskXSlider.value);
-            const circleY = parseInt(maskYSlider.value);
-            const radius = parseInt(maskSizeSlider.value) / 2;
+
+            // True center point of the design
+            const targetX = canvas.width / 2;
+            const targetY = canvas.height / 2;
+
+            // Target layout constraints (fits the standard cutout gap nicely)
+            const holeRadius = canvas.width * 0.24; 
 
             const scale = parseFloat(zoomSlider.value);
-            const moveX = parseInt(offsetXSlider.value);
-            const moveY = parseInt(offsetYSlider.value);
-            
-            let minDim = Math.min(userImage.width, userImage.height);
-            let targetSize = radius * 2 * scale;
-            
-            // Step 1: Clip and paint the user photo into the custom positioned circle window
+            const offsetX = parseInt(moveXSlider.value);
+            const offsetY = parseInt(moveYSlider.value);
+
+            let minDim = Math.min(userImg.width, userImg.height);
+            let displaySize = holeRadius * 2 * scale;
+
+            // 1. Draw User Photo Inside A Protected Mask Boundary
             ctx.save();
             ctx.beginPath();
-            ctx.arc(circleX, circleY, radius, 0, Math.PI * 2);
+            ctx.arc(targetX + offsetX, targetY + offsetY, holeRadius * scale, 0, Math.PI * 2);
             ctx.clip();
             
-            let drawX = circleX - (targetSize / 2) + moveX;
-            let drawY = circleY - (targetSize / 2) + moveY;
-            
-            ctx.drawImage(userImage, (userImage.width - minDim)/2, (userImage.height - minDim)/2, minDim, minDim, drawX, drawY, targetSize, targetSize);
+            let dx = (targetX - (displaySize / 2)) + offsetX;
+            let dy = (targetY - (displaySize / 2)) + offsetY;
+            ctx.drawImage(userImg, (userImg.width - minDim)/2, (userImg.height - minDim)/2, minDim, minDim, dx, dy, displaySize, displaySize);
             ctx.restore();
+
+            // 2. Punch hole through the white template grid pattern dynamically
+            let offscreen = document.createElement('canvas');
+            offscreen.width = canvas.width;
+            offscreen.height = canvas.height;
+            let oCtx = offscreen.getContext('2d');
             
-            // Step 2: Strip out the block pattern from the template image file automatically 
-            let offscreenCanvas = document.createElement('canvas');
-            offscreenCanvas.width = canvas.width;
-            offscreenCanvas.height = canvas.height;
-            let offCtx = offscreenCanvas.getContext('2d');
-            
-            offCtx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
-            offCtx.globalCompositeOperation = 'destination-out';
-            offCtx.beginPath();
-            offCtx.arc(circleX, circleY, radius - 2, 0, Math.PI * 2); 
-            offCtx.fill();
-            
-            // Step 3: Draw the custom alignment frame overlay cleanly on top
-            ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+            oCtx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+            oCtx.globalCompositeOperation = 'destination-out';
+            oCtx.beginPath();
+            // Automatically clears out the white circular space block
+            oCtx.arc(targetX + 276, targetY - 12, holeRadius - 10, 0, Math.PI * 2); 
+            oCtx.fill();
+
+            // 3. Render the dynamic frame cutout layer safely on top
+            ctx.drawImage(offscreen, 0, 0, canvas.width, canvas.height);
         }
 
         downloadBtn.addEventListener('click', () => {
