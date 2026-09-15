@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Profile Picture Frame Generator</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            padding: 20px; 
+            background: #f0f2f5; 
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .upload-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: #fdfdfd;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+        }
+        .control-panel {
+            margin: 20px 0;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .control-group {
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .control-group label {
+            font-weight: bold;
+            width: 30%;
+            text-align: left;
+        }
+        .control-group input {
+            width: 65%;
+        }
+        #canvas-container { 
+            margin: 20px auto; 
+            max-width: 500px; 
+            display: none; 
+        }
+        canvas { 
+            width: 100%; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+        }
+        .btn { 
+            background: #1877f2; 
+            color: white; 
+            padding: 12px 24px; 
+            border: none; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            margin: 10px; 
+            font-weight: bold;
+        }
+        .btn:hover { 
+            background: #166fe5; 
+        }
+        label.step-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Interactive Profile Frame Studio</h1>
+        <p>Upload your personal photo and use the sliders to align it perfectly inside the center gap.</p>
+
+        <div class="upload-section">
+            <label class="step-label" for="user-upload">Upload Your Profile Photo</label>
+            <input type="file" id="user-upload" accept="image/*">
+        </div>
+
+        <div class="control-panel" id="controls">
+            <h3>Adjust Photo Position</h3>
+            <div class="control-group">
+                <label for="zoom">Zoom Size:</label>
+                <input type="range" id="zoom" min="0.2" max="4" step="0.01" value="1.0">
+            </div>
+            <div class="control-group">
+                <label for="offsetX">Move Left/Right:</label>
+                <input type="range" id="offsetX" min="-800" max="800" step="1" value="0">
+            </div>
+            <div class="control-group">
+                <label for="offsetY">Move Up/Down:</label>
+                <input type="range" id="offsetY" min="-800" max="800" step="1" value="0">
+            </div>
+        </div>
+        
+        <div id="canvas-container">
+            <canvas id="canvas"></canvas>
+            <br>
+            <button class="btn" id="download-btn">Download Framed Photo</button>
+        </div>
+    </div>
+
+    <script>
+        const userUpload = document.getElementById('user-upload');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+        const controlsPanel = document.getElementById('controls');
+        const downloadBtn = document.getElementById('download-btn');
+
+        const zoomSlider = document.getElementById('zoom');
+        const offsetXSlider = document.getElementById('offsetX');
+        const offsetYSlider = document.getElementById('offsetY');
+
+        const FRAME_SRC = 'frame.png'; 
+
+        let userImage = new Image();
+        let frameImage = new Image();
+
+        let userLoaded = false;
+        let frameLoaded = false;
+
+        frameImage.crossOrigin = "anonymous";
+        frameImage.src = FRAME_SRC;
+        frameImage.onload = () => {
+            frameLoaded = true;
+            if (userLoaded) initCanvasSettings();
+        };
+
+        userUpload.addEventListener('change', (e) => {
+            const file = e.target.files;
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                userImage.onload = () => {
+                    userLoaded = true;
+                    initCanvasSettings();
+                };
+                userImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function initCanvasSettings() {
+            if (!userLoaded || !frameLoaded) return;
+            
+            canvas.width = frameImage.width;
+            canvas.height = frameImage.height;
+
+            offsetXSlider.min = -canvas.width;
+            offsetXSlider.max = canvas.width;
+            offsetYSlider.min = -canvas.height;
+            offsetYSlider.max = canvas.height;
+
+            controlsPanel.style.display = 'block';
+            container.style.display = 'block';
+            renderCanvas();
+        }
+
+        [zoomSlider, offsetXSlider, offsetYSlider].forEach(slider => {
+            slider.addEventListener('input', renderCanvas);
+        });
+
+        function renderCanvas() {
+            if (!userLoaded || !frameLoaded) return;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // NEW RECALIBRATED COORDINATES: Targets the exact center opening above the text
+            const circleX = canvas.width * 0.315; 
+            const circleY = canvas.height * 0.507; 
+            const radius = canvas.width * 0.237; 
+
+            const scale = parseFloat(zoomSlider.value);
+            const moveX = parseInt(offsetXSlider.value);
+            const moveY = parseInt(offsetYSlider.value);
+            
+            let minDim = Math.min(userImage.width, userImage.height);
+            let targetSize = radius * 2 * scale;
+            
+            // Draw profile picture inside the masked central circle
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(circleX, circleY, radius, 0, Math.PI * 2);
+            ctx.clip();
+            
+            let drawX = circleX - (targetSize / 2) + moveX;
+            let drawY = circleY - (targetSize / 2) + moveY;
+            
+            ctx.drawImage(userImage, (userImage.width - minDim)/2, (userImage.height - minDim)/2, minDim, minDim, drawX, drawY, targetSize, targetSize);
+            ctx.restore();
+            
+            // Mask out the inner grid pattern from the frame layer completely
+            let offscreenCanvas = document.createElement('canvas');
+            offscreenCanvas.width = canvas.width;
+            offscreenCanvas.height = canvas.height;
+            let offCtx = offscreenCanvas.getContext('2d');
+            
+            offCtx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
+            offCtx.globalCompositeOperation = 'destination-out';
+            offCtx.beginPath();
+            offCtx.arc(circleX, circleY, radius - 4, 0, Math.PI * 2); 
+            offCtx.fill();
+            
+            // Apply frame strictly on top of user image
+            ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'framed-profile-pic.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>
