@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Profile Picture Frame Generator</title>
+    <title>Fully Adjustable Profile Frame Studio</title>
     <style>
         body { 
             font-family: sans-serif; 
@@ -12,7 +12,7 @@
             background: #f0f2f5; 
         }
         .container {
-            max-width: 600px;
+            max-width: 700px;
             margin: 0 auto;
             background: white;
             padding: 30px;
@@ -32,20 +32,27 @@
             padding: 15px;
             border-radius: 8px;
             display: none;
+            text-align: left;
+        }
+        .control-section-title {
+            font-weight: bold;
+            color: #1877f2;
+            margin-top: 10px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
         }
         .control-group {
-            margin: 10px 0;
+            margin: 12px 0;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .control-group label {
             font-weight: bold;
-            width: 30%;
-            text-align: left;
+            width: 35%;
         }
         .control-group input {
-            width: 65%;
+            width: 60%;
         }
         #canvas-container { 
             margin: 20px auto; 
@@ -65,49 +72,59 @@
             border-radius: 6px; 
             cursor: pointer; 
             font-size: 16px; 
-            margin: 10px; 
+            margin: 10px auto; 
+            display: block;
             font-weight: bold;
         }
         .btn:hover { 
             background: #166fe5; 
-        }
-        label.step-label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Interactive Profile Frame Studio</h1>
-        <p>Upload your personal photo and use the sliders to align it perfectly inside the center gap.</p>
+        <h1>Fully Adjustable Profile Frame Studio</h1>
+        <p>Use the control sliders to perfectly position both the circle mask window and your picture anywhere on the layout.</p>
 
         <div class="upload-section">
-            <label class="step-label" for="user-upload">Upload Your Profile Photo</label>
+            <label style="font-weight:bold; display:block; margin-bottom:5px;">Upload Your Profile Photo</label>
             <input type="file" id="user-upload" accept="image/*">
         </div>
 
         <div class="control-panel" id="controls">
-            <h3>Adjust Photo Position</h3>
+            
+            <div class="control-section-title">1. Move & Resize the Circle Hole Window</div>
             <div class="control-group">
-                <label for="zoom">Zoom Size:</label>
+                <label for="maskSize">Circle Window Size:</label>
+                <input type="range" id="maskSize" min="100" max="600" step="1" value="350">
+            </div>
+            <div class="control-group">
+                <label for="maskX">Move Hole Left/Right:</label>
+                <input type="range" id="maskX" min="0" max="1500" step="1" value="686">
+            </div>
+            <div class="control-group">
+                <label for="maskY">Move Hole Up/Down:</label>
+                <input type="range" id="maskY" min="0" max="1500" step="1" value="750">
+            </div>
+
+            <div class="control-section-title">2. Move & Zoom Your Face Photo Inside the Hole</div>
+            <div class="control-group">
+                <label for="zoom">Photo Zoom Size:</label>
                 <input type="range" id="zoom" min="0.2" max="4" step="0.01" value="1.0">
             </div>
             <div class="control-group">
-                <label for="offsetX">Move Left/Right:</label>
+                <label for="offsetX">Move Photo Left/Right:</label>
                 <input type="range" id="offsetX" min="-800" max="800" step="1" value="0">
             </div>
             <div class="control-group">
-                <label for="offsetY">Move Up/Down:</label>
+                <label for="offsetY">Move Photo Up/Down:</label>
                 <input type="range" id="offsetY" min="-800" max="800" step="1" value="0">
             </div>
         </div>
         
         <div id="canvas-container">
             <canvas id="canvas"></canvas>
-            <br>
             <button class="btn" id="download-btn">Download Framed Photo</button>
         </div>
     </div>
@@ -120,6 +137,12 @@
         const controlsPanel = document.getElementById('controls');
         const downloadBtn = document.getElementById('download-btn');
 
+        // Mask Sliders
+        const maskSizeSlider = document.getElementById('maskSize');
+        const maskXSlider = document.getElementById('maskX');
+        const maskYSlider = document.getElementById('maskY');
+
+        // Photo Sliders
         const zoomSlider = document.getElementById('zoom');
         const offsetXSlider = document.getElementById('offsetX');
         const offsetYSlider = document.getElementById('offsetY');
@@ -159,6 +182,12 @@
             canvas.width = frameImage.width;
             canvas.height = frameImage.height;
 
+            // Update limits dynamically based on frame size
+            maskXSlider.max = canvas.width;
+            maskYSlider.max = canvas.height;
+            maskXSlider.value = canvas.width / 2;
+            maskYSlider.value = canvas.height * 0.48; // default positioning above text
+
             offsetXSlider.min = -canvas.width;
             offsetXSlider.max = canvas.width;
             offsetYSlider.min = -canvas.height;
@@ -169,7 +198,8 @@
             renderCanvas();
         }
 
-        [zoomSlider, offsetXSlider, offsetYSlider].forEach(slider => {
+        // Add listeners to every slider to instantly update the screen
+        [maskSizeSlider, maskXSlider, maskYSlider, zoomSlider, offsetXSlider, offsetYSlider].forEach(slider => {
             slider.addEventListener('input', renderCanvas);
         });
 
@@ -178,10 +208,10 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // NEW RECALIBRATED COORDINATES: Targets the exact center opening above the text
-            const circleX = canvas.width * 0.315; 
-            const circleY = canvas.height * 0.507; 
-            const radius = canvas.width * 0.237; 
+            // Get values from the dynamic slider panel inputs
+            const circleX = parseInt(maskXSlider.value);
+            const circleY = parseInt(maskYSlider.value);
+            const radius = parseInt(maskSizeSlider.value) / 2;
 
             const scale = parseFloat(zoomSlider.value);
             const moveX = parseInt(offsetXSlider.value);
@@ -190,7 +220,7 @@
             let minDim = Math.min(userImage.width, userImage.height);
             let targetSize = radius * 2 * scale;
             
-            // Draw profile picture inside the masked central circle
+            // Step 1: Clip and paint the user photo into the custom positioned circle window
             ctx.save();
             ctx.beginPath();
             ctx.arc(circleX, circleY, radius, 0, Math.PI * 2);
@@ -202,7 +232,7 @@
             ctx.drawImage(userImage, (userImage.width - minDim)/2, (userImage.height - minDim)/2, minDim, minDim, drawX, drawY, targetSize, targetSize);
             ctx.restore();
             
-            // Mask out the inner grid pattern from the frame layer completely
+            // Step 2: Strip out the block pattern from the template image file automatically 
             let offscreenCanvas = document.createElement('canvas');
             offscreenCanvas.width = canvas.width;
             offscreenCanvas.height = canvas.height;
@@ -211,10 +241,10 @@
             offCtx.drawImage(frameImage, 0, 0, canvas.width, canvas.height);
             offCtx.globalCompositeOperation = 'destination-out';
             offCtx.beginPath();
-            offCtx.arc(circleX, circleY, radius - 4, 0, Math.PI * 2); 
+            offCtx.arc(circleX, circleY, radius - 2, 0, Math.PI * 2); 
             offCtx.fill();
             
-            // Apply frame strictly on top of user image
+            // Step 3: Draw the custom alignment frame overlay cleanly on top
             ctx.drawImage(offscreenCanvas, 0, 0, canvas.width, canvas.height);
         }
 
